@@ -6,6 +6,8 @@ import { Button, Header, Screen, Text, Wallpaper, AutoImage as Image } from "../
 import { color, spacing, typography } from "../../theme"
 const bowserLogo = require("./bowser.png")
 
+//#region styles
+
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
   backgroundColor: color.transparent,
@@ -76,6 +78,8 @@ const FOOTER_CONTENT: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
 }
+
+//#endregion styles
 
 export const WelcomeScreen = observer(function WelcomeScreen() {
   const navigation = useNavigation()
