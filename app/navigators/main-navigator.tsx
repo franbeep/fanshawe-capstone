@@ -6,12 +6,20 @@
  */
 import React from "react"
 import { createStackNavigator } from "@react-navigation/stack"
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { 
   TutorialWelcomeScreen, 
   TutorialNotificationScreen, 
   TutorialProfileScreen, 
-  TutorialFinishScreen 
+  TutorialFinishScreen,
+  HomeScreen,
+  HistoryScreen,
+  ActionsScreen,
+  ProfilesScreen,
+  SettingsScreen,
 } from "../screens"
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { color } from "../theme"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -27,26 +35,97 @@ import {
  */
 export type PrimaryParamList = {
   tutorialwelcome: undefined
-  tutorialnotification: undefined
-  tutorialprofile: undefined
-  tutorialfinish: undefined
+  home: undefined
 }
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createStackNavigator<PrimaryParamList>()
 
+
+
+export type TutorialParamList = {
+  tutorialwelcome: undefined
+  tutorialnotification: undefined
+  tutorialprofile: undefined
+  tutorialfinish: undefined
+}
+const TutorialStack = createStackNavigator<TutorialParamList>()
+
+export function TutorialStackNavigator() {
+  return <TutorialStack.Navigator screenOptions={{
+    headerShown: false,
+  }}>
+    <TutorialStack.Screen name="tutorialwelcome" component={TutorialWelcomeScreen} />
+    <TutorialStack.Screen name="tutorialnotification" component={TutorialNotificationScreen} />
+    <TutorialStack.Screen name="tutorialprofile" component={TutorialProfileScreen} />
+    <TutorialStack.Screen name="tutorialfinish" component={TutorialFinishScreen} />
+  </TutorialStack.Navigator>
+}
+
+export type AppParamList = {
+  home: undefined
+  history: undefined
+  actions: undefined
+  profiles: undefined
+  settings: undefined
+}
+const AppTabs = createBottomTabNavigator<AppParamList>()
+
+export function AppTabsNavigator() {
+
+  return <AppTabs.Navigator screenOptions={
+    ({ route }) => ({
+      // eslint-disable-next-line react/display-name
+      tabBarIcon: ({ color, size }) => {
+        let iconName: string
+
+
+        switch (route.name) {
+          case "home":
+            iconName = "ios-home-sharp"
+            break
+          case "history":
+            iconName = "albums"
+            break
+          case "actions":
+            iconName = "bulb-outline"
+            break
+          case "profiles":
+            iconName = "ios-people"
+            break
+          case "settings":
+            iconName = "ios-settings"
+            break
+          default:
+            iconName = "glasses" // easter egg
+        }
+
+        // You can return any component that you like here!
+        return <Ionicons name={iconName} size={size} color={color} />;
+      },
+  })}
+  
+  tabBarOptions={{
+    activeTintColor: color.palette.brightOrange,
+    inactiveTintColor: 'gray',
+  }}>
+    <AppTabs.Screen name="home" component={HomeScreen} />
+    <AppTabs.Screen name="history" component={HistoryScreen} />
+    <AppTabs.Screen name="actions" component={ActionsScreen} />
+    <AppTabs.Screen name="profiles" component={ProfilesScreen} />
+    <AppTabs.Screen name="settings" component={SettingsScreen} />
+  </AppTabs.Navigator>
+}
+
 export function MainNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
-        // cardStyle: { backgroundColor: "transparent" },
         headerShown: false,
       }}
     >
-      <Stack.Screen name="tutorialwelcome" component={TutorialWelcomeScreen} />
-      <Stack.Screen name="tutorialnotification" component={TutorialNotificationScreen} />
-      <Stack.Screen name="tutorialprofile" component={TutorialProfileScreen} />
-      <Stack.Screen name="tutorialfinish" component={TutorialFinishScreen} />
+      <Stack.Screen name="tutorialwelcome" component={TutorialStackNavigator} />
+      <Stack.Screen name="home" component={AppTabsNavigator} />
     </Stack.Navigator>
   )
 }
@@ -60,5 +139,5 @@ export function MainNavigator() {
  *
  * `canExit` is used in ./app/app.tsx in the `useBackButtonHandler` hook.
  */
-const exitRoutes = ["welcome"]
+const exitRoutes = ["home"]
 export const canExit = (routeName: string) => exitRoutes.includes(routeName)

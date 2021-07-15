@@ -10,6 +10,10 @@ export const palette = {
   deepPurple: "#5D2555",
   // app specific
   brightOrange: "#e24026",
+  darkOrange: "#bf2b13",
+  darkerOrange: "#851a09",
   deepRed: "#902024",
   almostWhite: "#f2f2f2",
+  brightGreen: "#1da82d",
+  alternativeGreen: "#3db86a",
 }
