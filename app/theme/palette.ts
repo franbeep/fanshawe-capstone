@@ -8,4 +8,8 @@ export const palette = {
   lighterGrey: "#CDD4DA",
   angry: "#dd3333",
   deepPurple: "#5D2555",
+  // app specific
+  brightOrange: "#e24026",
+  deepRed: "#902024",
+  almostWhite: "#f2f2f2",
 }
