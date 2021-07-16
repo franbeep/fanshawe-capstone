@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
 import {
   Alert,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  Animated,
 } from "react-native"
 import { Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
@@ -177,12 +178,102 @@ export const HomeScreen = observer(function HomeScreen() {
     }, 3000)
   }
 
+  const startAnimatedBackground = useRef(new Animated.Value(0)).current
+  const endAnimatedBackground = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    // start
+    // Animated.loop(
+    //   Animated.sequence([
+    //     Animated.timing(startAnimatedBackground, {
+    //       toValue: 10,
+    //       duration: 2000,
+    //       useNativeDriver: true,
+    //     }),
+    //     Animated.timing(startAnimatedBackground, {
+    //       toValue: 0,
+    //       duration: 2000,
+    //       useNativeDriver: true,
+    //     }),
+    //   ]),
+    //   {
+    //     iterations: 10,
+    //   },
+    // ).start()
+    // end
+    // Animated.loop(
+    //   Animated.sequence([
+    //     Animated.timing(endAnimatedBackground, {
+    //       toValue: 10,
+    //       duration: 2000,
+    //       useNativeDriver: true,
+    //     }),
+    //     Animated.timing(endAnimatedBackground, {
+    //       toValue: 0,
+    //       duration: 2000,
+    //       useNativeDriver: true,
+    //     }),
+    //   ]),
+    //   {
+    //     iterations: 10,
+    //   },
+    // ).start()
+    Animated.timing(startAnimatedBackground, {
+      toValue: 10,
+      duration: 15000,
+      useNativeDriver: true,
+    }).start()
+  }, [])
+
+  const startAnimatedBackgroundInterpolated = startAnimatedBackground.interpolate({
+    inputRange: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    outputRange: [
+      "rgb(26, 117, 255)",
+      "rgb(106, 93, 248)",
+      "rgb(201, 87, 230)",
+      "rgb(210, 72, 107)",
+      "rgb(191, 68, 172)",
+      "rgb(171, 71, 208)",
+      "rgb(148, 96, 243)",
+      "rgb(70, 172, 237)",
+      "rgb(78, 196, 163)",
+      "rgb(184, 186, 5)",
+      "rgb(210, 72, 107)",
+    ],
+  })
+
+  // const endAnimatedBackgroundInterpolated = endAnimatedBackground.interpolate({
+  //   inputRange: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  //   outputRange: [
+  //     "rgb(106, 93, 248)",
+  //     "rgb(201, 87, 230)",
+  //     "rgb(210, 72, 107)",
+  //     "rgb(191, 68, 172)",
+  //     "rgb(171, 71, 208)",
+  //     "rgb(148, 96, 243)",
+  //     "rgb(70, 172, 237)",
+  //     "rgb(78, 196, 163)",
+  //     "rgb(184, 186, 5)",
+  //     "rgb(210, 72, 107)",
+  //     "rgb(26, 117, 255)",
+  //   ],
+  // })
+
   return (
     <Screen style={ROOT} preset="scroll">
-      <LinearGradient
+      <Animated.View
+        style={[
+          styles.linearGradient,
+          {
+            backgroundColor: startAnimatedBackgroundInterpolated,
+          },
+        ]}
         // colors={[color.palette.brightOrange, color.palette.darkOrange, color.palette.darkerOrange]}
-        colors={getGradient(actualTheme)}
-        style={styles.linearGradient}
+        // colors={["transparent", "transparent"]}
+        // style={styles.linearGradient}
+        // useAngle={true}
+        // angle={137}
+        // angleCenter={{ x: 0.5, y: 0.5 }}
       >
         {/* <Text style={styles.buttonText}>
           Home
@@ -240,7 +331,7 @@ export const HomeScreen = observer(function HomeScreen() {
             <Text style={{ fontSize: 15 }}>{message}</Text>
           </View>
         </View>
-      </LinearGradient>
+      </Animated.View>
     </Screen>
   )
 })
