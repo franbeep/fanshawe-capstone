@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   Alert,
@@ -9,10 +9,10 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native"
-import { Screen, Text, Button } from "../../components"
+import { Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
-import { color, spacing, typography } from "../../theme"
+import { useStores } from "../../models"
+import { color, spacing } from "../../theme"
 import LinearGradient from "react-native-linear-gradient"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
@@ -47,7 +47,6 @@ const CIRCLE_BPM_CONTAINER: ViewStyle = {
 const OUTER_BPM_CIRCLE: ViewStyle = {
   borderRadius: 3000,
   borderWidth: 5,
-  borderColor: color.palette.deepRed,
 }
 
 const BPM_VALUE: TextStyle = {
@@ -81,6 +80,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.medium,
     paddingVertical: spacing.small,
   },
+  lastChecked: {
+    fontSize: 15,
+    marginVertical: spacing.medium,
+    opacity: 0.5,
+  },
   linearGradient: {
     // borderRadius: 5,
     flex: 1,
@@ -89,9 +93,63 @@ const styles = StyleSheet.create({
   },
 })
 
+const getGradient = (c: string): string[] => {
+  switch (c) {
+    case "red":
+      return color.palette.gradient.red
+    case "orange":
+      return color.palette.gradient.orange
+    case "yellow":
+      return color.palette.gradient.yellow
+    case "green":
+      return color.palette.gradient.green
+    case "cyan":
+      return color.palette.gradient.cyan
+    case "blue":
+      return color.palette.gradient.blue
+    case "purple":
+      return color.palette.gradient.purple
+    default:
+      return color.palette.gradient.orange
+  }
+}
+
 export const HomeScreen = observer(function HomeScreen() {
+  // Are we refreshing the data
+  const [refreshing, setRefreshing] = useState(false)
+  const [message, setMessage] = useState("")
+  const [lastChecked, setLastChecked] = useState(null)
+
   // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
+  const { bpmStore, settingsStore } = useStores()
+  const { lastMinute } = bpmStore
+  const { actualTheme } = settingsStore
+
+  useEffect(() => {
+    if (lastMinute > 0 && lastMinute < 50) {
+      Alert.alert("Change Theme", "You seem down 😔. Don't worry, we can solve this! 🥳", [
+        {
+          text: "Change Theme to HAPPY",
+          style: "destructive",
+          onPress: () => {
+            settingsStore.setThemeColor(settingsStore.happyColor)
+          },
+        },
+        { text: "Cancel", style: "cancel", onPress: () => {} },
+      ])
+    }
+  }, [lastMinute])
+
+  const fetchData = async () => {
+    setRefreshing(true)
+    await bpmStore.getCurrentBpm()
+    setLastChecked(new Date())
+    setRefreshing(false)
+  }
+
+  // useEffect(() => {
+  //   fetchData()
+  // }, [])
 
   const navigation = useNavigation()
   useEffect(() => {
@@ -104,12 +162,26 @@ export const HomeScreen = observer(function HomeScreen() {
     })
   }, [navigation])
 
-  const doRefresh = () => {}
+  const doRefresh = () => {
+    fetchData()
+  }
+
+  const doCheckConnectivity = () => {
+    // dummy checking
+    setMessage("Testing connection to the device...")
+    setTimeout(() => {
+      setMessage("Error! Connection couldn't be established.")
+      setTimeout(() => {
+        setMessage("")
+      }, 3000)
+    }, 3000)
+  }
 
   return (
     <Screen style={ROOT} preset="scroll">
       <LinearGradient
-        colors={[color.palette.brightOrange, color.palette.darkOrange, color.palette.darkerOrange]}
+        // colors={[color.palette.brightOrange, color.palette.darkOrange, color.palette.darkerOrange]}
+        colors={getGradient(actualTheme)}
         style={styles.linearGradient}
       >
         {/* <Text style={styles.buttonText}>
@@ -118,24 +190,30 @@ export const HomeScreen = observer(function HomeScreen() {
 
         <View style={NAME_CONTAINER}>
           <Text preset="bold">☁️ Clouds 23°C</Text>
-          <Text preset="default">15 July, 2021</Text>
+          <Text preset="default">16 July, 2021</Text>
         </View>
 
         <View style={CENTER}>
-          <ActivityIndicator size="large" color={color.palette.white} style={LOADING} />
+          {refreshing && (
+            <ActivityIndicator size="large" color={color.palette.white} style={LOADING} />
+          )}
 
-          <View style={OUTER_BPM_CIRCLE}>
+          {!refreshing && <View style={[LOADING, { height: 38 }]}></View>}
+
+          <View style={{ ...OUTER_BPM_CIRCLE, borderColor: getGradient(actualTheme)[2] }}>
             <View style={CIRCLE_BPM_CONTAINER}>
-              <Text style={BPM_VALUE}>999</Text>
+              <Text style={BPM_VALUE}>{lastMinute}</Text>
               <Text style={BPM_CAPTION}>bpm</Text>
             </View>
           </View>
 
-          <View>
-            <Text style={{ fontSize: 15, opacity: 0.5, marginVertical: spacing.medium }}>
-              Last checked 27 seconds ago...
-            </Text>
-          </View>
+          {lastChecked != null && (
+            <View>
+              <Text style={styles.lastChecked}>
+                Last checked at {lastChecked.toLocaleTimeString("en-US")}
+              </Text>
+            </View>
+          )}
 
           <View>
             <TouchableOpacity style={styles.button} onPress={doRefresh}>
@@ -147,7 +225,7 @@ export const HomeScreen = observer(function HomeScreen() {
               />
               <Text>Refresh</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={doRefresh}>
+            <TouchableOpacity style={styles.button} onPress={doCheckConnectivity}>
               <MaterialCommunityIcons
                 name={"lan-connect"}
                 size={17}
@@ -159,20 +237,8 @@ export const HomeScreen = observer(function HomeScreen() {
           </View>
 
           <View style={{ marginTop: spacing.large }}>
-            <Text style={{ fontSize: 15 }}>Testing connection to the device...</Text>
+            <Text style={{ fontSize: 15 }}>{message}</Text>
           </View>
-
-          <View style={{ marginTop: spacing.large }}>
-            <Text style={{ fontSize: 18, color: color.palette.alternativeGreen }}>
-              Connection established. Everything is ok!
-            </Text>
-          </View>
-
-          {/* <View style={{backgroundColor: color.palette.white, borderRadius: spacing.tiny}}>
-          <Text style={{fontSize: 15, color: color.palette.deepRed}}>
-            Error! Connection couldn't be established.
-          </Text>
-        </View> */}
         </View>
       </LinearGradient>
     </Screen>

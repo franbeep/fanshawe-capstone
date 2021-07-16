@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   ViewStyle,
@@ -7,19 +7,19 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native"
 import { Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
+import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { VictoryChart, VictoryTheme, VictoryLine } from "victory-native"
 
 const styles = StyleSheet.create({
   button: {
-    borderColor: color.palette.brightOrange,
+    // borderColor: color.palette.brightOrange,
     borderRadius: 4,
     borderWidth: 1,
-    color: color.palette.brightOrange,
+    // color: color.palette.brightOrange,
     flexDirection: "row",
     fontSize: 17,
     // marginTop: spacing.large,
@@ -65,14 +65,57 @@ const LOADING: ViewStyle = {
   marginBottom: 0,
 }
 
+const getGradient = (c: string): string[] => {
+  switch (c) {
+    case "red":
+      return color.palette.gradient.red
+    case "orange":
+      return color.palette.gradient.orange
+    case "yellow":
+      return color.palette.gradient.yellow
+    case "green":
+      return color.palette.gradient.green
+    case "cyan":
+      return color.palette.gradient.cyan
+    case "blue":
+      return color.palette.gradient.blue
+    case "purple":
+      return color.palette.gradient.purple
+    default:
+      return color.palette.gradient.orange
+  }
+}
+
 export const HistoryScreen = observer(function HistoryScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
+  const [refreshing, setRefreshing] = useState(false)
+  const [chartData, setChartData] = useState([])
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
+  const { bpmStore, settingsStore } = useStores()
+  const { last24h, lastWeek, lastMonth } = bpmStore
+  const { actualTheme } = settingsStore
 
-  const changeChart = (option) => {}
+  const changeChart = async (option) => {
+    setRefreshing(true)
+    switch (option) {
+      case "day":
+        await bpmStore.getDayBpm()
+        setChartData(last24h)
+        break
+      case "week":
+        await bpmStore.getWeekBpm()
+        setChartData(lastWeek)
+        break
+      case "month":
+        await bpmStore.getMonthBpm()
+        setChartData(lastMonth)
+        break
+      default:
+        break
+    }
+    setRefreshing(false)
+  }
+
+  const setColor = getGradient(actualTheme)
 
   return (
     <Screen style={ROOT} preset="scroll">
@@ -86,34 +129,36 @@ export const HistoryScreen = observer(function HistoryScreen() {
       </View>
 
       <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.button} onPress={() => changeChart("day")}>
-          <Text style={styles.orange}>Day</Text>
+        <TouchableOpacity
+          style={{ ...styles.button, borderColor: setColor[0] }}
+          onPress={() => changeChart("day")}
+        >
+          <Text style={{ color: setColor[0] }}>Day</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => changeChart("Week")}>
-          <Text style={styles.orange}>Week</Text>
+        <TouchableOpacity
+          style={{ ...styles.button, borderColor: setColor[0] }}
+          onPress={() => changeChart("Week")}
+        >
+          <Text style={{ color: setColor[0] }}>Week</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => changeChart("Week")}>
-          <Text style={styles.orange}>Month</Text>
+        <TouchableOpacity
+          style={{ ...styles.button, borderColor: setColor[0] }}
+          onPress={() => changeChart("Week")}
+        >
+          <Text style={{ color: setColor[0] }}>Month</Text>
         </TouchableOpacity>
       </View>
 
-      <ActivityIndicator size="large" color={color.palette.brightOrange} style={LOADING} />
+      {refreshing && <ActivityIndicator size="large" color={setColor[0]} style={LOADING} />}
 
       <View style={styles.container}>
         <VictoryChart theme={VictoryTheme.material}>
           <VictoryLine
             style={{
-              data: { stroke: color.palette.brightOrange },
+              data: { stroke: setColor[0] },
               parent: { border: "1px solid #ccc" },
             }}
-            data={[]}
-            // data={[
-            //   { x: 1, y: 2 },
-            //   { x: 2, y: 3 },
-            //   { x: 3, y: 5 },
-            //   { x: 4, y: 4 },
-            //   { x: 5, y: 7 },
-            // ]}
+            data={chartData}
           />
         </VictoryChart>
       </View>

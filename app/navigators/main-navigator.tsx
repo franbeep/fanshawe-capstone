@@ -4,13 +4,13 @@
  *
  * You'll likely spend most of your time in this file.
  */
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { createStackNavigator } from "@react-navigation/stack"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { 
-  TutorialWelcomeScreen, 
-  TutorialNotificationScreen, 
-  TutorialProfileScreen, 
+import {
+  TutorialWelcomeScreen,
+  TutorialNotificationScreen,
+  TutorialProfileScreen,
   TutorialFinishScreen,
   HomeScreen,
   HistoryScreen,
@@ -18,8 +18,9 @@ import {
   ProfilesScreen,
   SettingsScreen,
 } from "../screens"
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "react-native-vector-icons/Ionicons"
 import { color } from "../theme"
+import { useStores } from "../models"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -41,8 +42,6 @@ export type PrimaryParamList = {
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createStackNavigator<PrimaryParamList>()
 
-
-
 export type TutorialParamList = {
   tutorialwelcome: undefined
   tutorialnotification: undefined
@@ -52,14 +51,18 @@ export type TutorialParamList = {
 const TutorialStack = createStackNavigator<TutorialParamList>()
 
 export function TutorialStackNavigator() {
-  return <TutorialStack.Navigator screenOptions={{
-    headerShown: false,
-  }}>
-    <TutorialStack.Screen name="tutorialwelcome" component={TutorialWelcomeScreen} />
-    <TutorialStack.Screen name="tutorialnotification" component={TutorialNotificationScreen} />
-    <TutorialStack.Screen name="tutorialprofile" component={TutorialProfileScreen} />
-    <TutorialStack.Screen name="tutorialfinish" component={TutorialFinishScreen} />
-  </TutorialStack.Navigator>
+  return (
+    <TutorialStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <TutorialStack.Screen name="tutorialwelcome" component={TutorialWelcomeScreen} />
+      <TutorialStack.Screen name="tutorialnotification" component={TutorialNotificationScreen} />
+      <TutorialStack.Screen name="tutorialprofile" component={TutorialProfileScreen} />
+      <TutorialStack.Screen name="tutorialfinish" component={TutorialFinishScreen} />
+    </TutorialStack.Navigator>
+  )
 }
 
 export type AppParamList = {
@@ -72,49 +75,79 @@ export type AppParamList = {
 const AppTabs = createBottomTabNavigator<AppParamList>()
 
 export function AppTabsNavigator() {
+  const [activeTintColor, setActiveTintColor] = useState("orange")
+  const { settingsStore } = useStores()
+  const { actualTheme } = settingsStore
 
-  return <AppTabs.Navigator screenOptions={
-    ({ route }) => ({
-      // eslint-disable-next-line react/display-name
-      tabBarIcon: ({ color, size }) => {
-        let iconName: string
+  useEffect(() => {
+    console.log(`AppTabsNavigator settings setActiveTintColor to ${actualTheme}`)
+    setActiveTintColor(actualTheme)
+  }, [actualTheme])
 
+  const getThemeColor = (c: string) => {
+    switch (c) {
+      case "red":
+        return color.palette.gradient.red[0]
+      case "orange":
+        return color.palette.gradient.orange[0]
+      case "yellow":
+        return color.palette.gradient.yellow[0]
+      case "green":
+        return color.palette.gradient.green[0]
+      case "cyan":
+        return color.palette.gradient.cyan[0]
+      case "blue":
+        return color.palette.gradient.blue[0]
+      case "purple":
+        return color.palette.gradient.purple[0]
+      default:
+        return color.palette.gradient.orange[0]
+    }
+  }
 
-        switch (route.name) {
-          case "home":
-            iconName = "ios-home-sharp"
-            break
-          case "history":
-            iconName = "albums"
-            break
-          case "actions":
-            iconName = "bulb-outline"
-            break
-          case "profiles":
-            iconName = "ios-people"
-            break
-          case "settings":
-            iconName = "ios-settings"
-            break
-          default:
-            iconName = "glasses" // easter egg
-        }
+  return (
+    <AppTabs.Navigator
+      screenOptions={({ route }) => ({
+        // eslint-disable-next-line react/display-name
+        tabBarIcon: ({ color, size }) => {
+          let iconName: string
 
-        // You can return any component that you like here!
-        return <Ionicons name={iconName} size={size} color={color} />;
-      },
-  })}
-  
-  tabBarOptions={{
-    activeTintColor: color.palette.brightOrange,
-    inactiveTintColor: 'gray',
-  }}>
-    <AppTabs.Screen name="home" component={HomeScreen} />
-    <AppTabs.Screen name="history" component={HistoryScreen} />
-    <AppTabs.Screen name="actions" component={ActionsScreen} />
-    <AppTabs.Screen name="profiles" component={ProfilesScreen} />
-    <AppTabs.Screen name="settings" component={SettingsScreen} />
-  </AppTabs.Navigator>
+          switch (route.name) {
+            case "home":
+              iconName = "ios-home-sharp"
+              break
+            case "history":
+              iconName = "albums"
+              break
+            case "actions":
+              iconName = "bulb-outline"
+              break
+            case "profiles":
+              iconName = "ios-people"
+              break
+            case "settings":
+              iconName = "ios-settings"
+              break
+            default:
+              iconName = "glasses" // easter egg
+          }
+
+          // You can return any component that you like here!
+          return <Ionicons name={iconName} size={size} color={color} />
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: getThemeColor(activeTintColor),
+        inactiveTintColor: "gray",
+      }}
+    >
+      <AppTabs.Screen name="home" component={HomeScreen} />
+      <AppTabs.Screen name="history" component={HistoryScreen} />
+      <AppTabs.Screen name="actions" component={ActionsScreen} />
+      <AppTabs.Screen name="profiles" component={ProfilesScreen} />
+      <AppTabs.Screen name="settings" component={SettingsScreen} />
+    </AppTabs.Navigator>
+  )
 }
 
 export function MainNavigator() {
