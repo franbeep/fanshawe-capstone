@@ -218,11 +218,20 @@ export const HomeScreen = observer(function HomeScreen() {
     //     iterations: 10,
     //   },
     // ).start()
-    Animated.timing(startAnimatedBackground, {
-      toValue: 10,
-      duration: 15000,
-      useNativeDriver: true,
-    }).start()
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(startAnimatedBackground, {
+          toValue: 10,
+          duration: 15000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(startAnimatedBackground, {
+          toValue: 0,
+          duration: 15000,
+          useNativeDriver: false,
+        }),
+      ]),
+    ).start()
   }, [])
 
   const startAnimatedBackgroundInterpolated = startAnimatedBackground.interpolate({
@@ -259,79 +268,98 @@ export const HomeScreen = observer(function HomeScreen() {
   //   ],
   // })
 
+  const GradientWrapper = ({ children }) => (
+    <LinearGradient colors={getGradient(actualTheme)} style={styles.linearGradient}>
+      {children}
+    </LinearGradient>
+  )
+
+  const AnimatedViewWrapper = ({ children }) => (
+    <Animated.View
+      style={[
+        styles.linearGradient,
+        {
+          backgroundColor: startAnimatedBackgroundInterpolated,
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  )
+
+  const Rest = () => (
+    <>
+      <View style={NAME_CONTAINER}>
+        <Text preset="bold">☁️ Clouds 23°C</Text>
+        <Text preset="default">16 July, 2021</Text>
+      </View>
+
+      <View style={CENTER}>
+        {refreshing && (
+          <ActivityIndicator size="large" color={color.palette.white} style={LOADING} />
+        )}
+
+        {!refreshing && <View style={[LOADING, { height: 38 }]}></View>}
+
+        <View style={{ ...OUTER_BPM_CIRCLE, borderColor: getGradient(actualTheme)[2] }}>
+          <View style={CIRCLE_BPM_CONTAINER}>
+            <Text style={BPM_VALUE}>{lastMinute}</Text>
+            <Text style={BPM_CAPTION}>bpm</Text>
+          </View>
+        </View>
+
+        {lastChecked != null && (
+          <View>
+            <Text style={styles.lastChecked}>
+              Last checked at {lastChecked.toLocaleTimeString("en-US")}
+            </Text>
+          </View>
+        )}
+
+        <View>
+          <TouchableOpacity style={styles.button} onPress={doRefresh}>
+            <Ionicons
+              name={"refresh"}
+              size={17}
+              color={color.palette.white}
+              style={{ marginRight: spacing.small }}
+            />
+            <Text>Refresh</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={doCheckConnectivity}>
+            <MaterialCommunityIcons
+              name={"lan-connect"}
+              size={17}
+              color={color.palette.white}
+              style={{ marginRight: spacing.small }}
+            />
+            <Text>Check connectivity</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ marginTop: spacing.large }}>
+          <Text style={{ fontSize: 15 }}>{message}</Text>
+        </View>
+      </View>
+    </>
+  )
+
+  console.log(`@@@actualTheme: ${actualTheme}`)
+
+  if (actualTheme === "default")
+    return (
+      <Screen style={ROOT} preset="scroll">
+        <AnimatedViewWrapper>
+          <Rest />
+        </AnimatedViewWrapper>
+      </Screen>
+    )
+
   return (
     <Screen style={ROOT} preset="scroll">
-      <Animated.View
-        style={[
-          styles.linearGradient,
-          {
-            backgroundColor: startAnimatedBackgroundInterpolated,
-          },
-        ]}
-        // colors={[color.palette.brightOrange, color.palette.darkOrange, color.palette.darkerOrange]}
-        // colors={["transparent", "transparent"]}
-        // style={styles.linearGradient}
-        // useAngle={true}
-        // angle={137}
-        // angleCenter={{ x: 0.5, y: 0.5 }}
-      >
-        {/* <Text style={styles.buttonText}>
-          Home
-        </Text> */}
-
-        <View style={NAME_CONTAINER}>
-          <Text preset="bold">☁️ Clouds 23°C</Text>
-          <Text preset="default">16 July, 2021</Text>
-        </View>
-
-        <View style={CENTER}>
-          {refreshing && (
-            <ActivityIndicator size="large" color={color.palette.white} style={LOADING} />
-          )}
-
-          {!refreshing && <View style={[LOADING, { height: 38 }]}></View>}
-
-          <View style={{ ...OUTER_BPM_CIRCLE, borderColor: getGradient(actualTheme)[2] }}>
-            <View style={CIRCLE_BPM_CONTAINER}>
-              <Text style={BPM_VALUE}>{lastMinute}</Text>
-              <Text style={BPM_CAPTION}>bpm</Text>
-            </View>
-          </View>
-
-          {lastChecked != null && (
-            <View>
-              <Text style={styles.lastChecked}>
-                Last checked at {lastChecked.toLocaleTimeString("en-US")}
-              </Text>
-            </View>
-          )}
-
-          <View>
-            <TouchableOpacity style={styles.button} onPress={doRefresh}>
-              <Ionicons
-                name={"refresh"}
-                size={17}
-                color={color.palette.white}
-                style={{ marginRight: spacing.small }}
-              />
-              <Text>Refresh</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={doCheckConnectivity}>
-              <MaterialCommunityIcons
-                name={"lan-connect"}
-                size={17}
-                color={color.palette.white}
-                style={{ marginRight: spacing.small }}
-              />
-              <Text>Check connectivity</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={{ marginTop: spacing.large }}>
-            <Text style={{ fontSize: 15 }}>{message}</Text>
-          </View>
-        </View>
-      </Animated.View>
+      <GradientWrapper>
+        <Rest />
+      </GradientWrapper>
     </Screen>
   )
 })

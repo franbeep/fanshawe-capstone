@@ -11,7 +11,7 @@ export const SettingsModel = types
     sadColor: types.optional(types.maybe(types.string), ""),
     happyColor: types.optional(types.maybe(types.string), ""),
     anxiousColor: types.optional(types.maybe(types.string), ""),
-    actualTheme: types.optional(types.maybe(types.string), "orange"),
+    actualTheme: types.optional(types.maybe(types.string), "default"),
   })
   .views((self) => ({
     get isComplete(): boolean {
@@ -70,7 +70,7 @@ export const SettingsModel = types
       self.sadColor = ""
       self.happyColor = ""
       self.anxiousColor = ""
-      self.actualTheme = ""
+      self.actualTheme = "default"
     },
   }))
 
