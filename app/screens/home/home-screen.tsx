@@ -1,13 +1,21 @@
 import React, { useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, View, TextStyle, ViewStyle, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native"
+import {
+  Alert,
+  View,
+  TextStyle,
+  ViewStyle,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native"
 import { Screen, Text, Button } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing, typography } from "../../theme"
-import LinearGradient from 'react-native-linear-gradient'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import LinearGradient from "react-native-linear-gradient"
+import Ionicons from "react-native-vector-icons/Ionicons"
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -22,7 +30,6 @@ const NAME_CONTAINER: ViewStyle = {
 const LOADING: ViewStyle = {
   marginTop: spacing.huge,
   width: "100%",
-  opacity: 0.7,
   marginVertical: spacing.medium,
 }
 
@@ -49,7 +56,6 @@ const BPM_VALUE: TextStyle = {
   // backgroundColor: "green",
   width: 110,
   textAlign: "center",
-  
 }
 
 const BPM_CAPTION: TextStyle = {
@@ -80,8 +86,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,
-  }
-});
+  },
+})
 
 export const HomeScreen = observer(function HomeScreen() {
   // Pull in one of our MST stores
@@ -89,16 +95,12 @@ export const HomeScreen = observer(function HomeScreen() {
 
   const navigation = useNavigation()
   useEffect(() => {
-    navigation.addListener("beforeRemove", event => {
+    navigation.addListener("beforeRemove", (event) => {
       event.preventDefault()
-      Alert.alert(
-        "Leaving the App",
-        "Are you sure you want to leave the App?",
-        [
-          {text: "Confirm", style: "destructive", onPress: () => {}},
-          {text: "Cancel", style: "cancel", onPress: () => {}}
-        ]
-      )
+      Alert.alert("Leaving the App", "Are you sure you want to leave the App?", [
+        { text: "Confirm", style: "destructive", onPress: () => {} },
+        { text: "Cancel", style: "cancel", onPress: () => {} },
+      ])
     })
   }, [navigation])
 
@@ -106,70 +108,72 @@ export const HomeScreen = observer(function HomeScreen() {
 
   return (
     <Screen style={ROOT} preset="scroll">
-      <LinearGradient colors={[color.palette.brightOrange, color.palette.darkOrange, color.palette.darkerOrange]} style={styles.linearGradient}>
+      <LinearGradient
+        colors={[color.palette.brightOrange, color.palette.darkOrange, color.palette.darkerOrange]}
+        style={styles.linearGradient}
+      >
         {/* <Text style={styles.buttonText}>
           Home
         </Text> */}
 
-      <View style={NAME_CONTAINER}>
-        <Text preset="bold" >
-          Felipe Almeida
-        </Text>
-        <Text preset="default" >
-          15 July, 2021
-        </Text>
-      </View>
-  
-      <View style={CENTER}>
-        <ActivityIndicator size="large" color={color.palette.white} style={LOADING} />
-        
-        <View style={OUTER_BPM_CIRCLE}>
-          <View style={CIRCLE_BPM_CONTAINER}>
-            <Text style={BPM_VALUE}>999</Text>
-            <Text style={BPM_CAPTION}>bpm</Text>
+        <View style={NAME_CONTAINER}>
+          <Text preset="bold">☁️ Clouds 23°C</Text>
+          <Text preset="default">15 July, 2021</Text>
+        </View>
+
+        <View style={CENTER}>
+          <ActivityIndicator size="large" color={color.palette.white} style={LOADING} />
+
+          <View style={OUTER_BPM_CIRCLE}>
+            <View style={CIRCLE_BPM_CONTAINER}>
+              <Text style={BPM_VALUE}>999</Text>
+              <Text style={BPM_CAPTION}>bpm</Text>
+            </View>
           </View>
-        </View>
 
-        <View>
-          <Text style={{fontSize: 15, opacity: 0.5, marginVertical: spacing.medium}}>
-            Last checked 27 seconds ago...
-          </Text>
-        </View>
+          <View>
+            <Text style={{ fontSize: 15, opacity: 0.5, marginVertical: spacing.medium }}>
+              Last checked 27 seconds ago...
+            </Text>
+          </View>
 
-        <View>
-          <TouchableOpacity style={styles.button} onPress={doRefresh}>
-            <Ionicons name={"refresh"} size={17} color={color.palette.white} style={{marginRight: spacing.small}} />
-            <Text>Refresh</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={doRefresh}>
-            <MaterialCommunityIcons name={"lan-connect"} size={17} color={color.palette.white} style={{marginRight: spacing.small}} />
-            <Text>Check connectivity</Text>
-          </TouchableOpacity>
-        </View>
+          <View>
+            <TouchableOpacity style={styles.button} onPress={doRefresh}>
+              <Ionicons
+                name={"refresh"}
+                size={17}
+                color={color.palette.white}
+                style={{ marginRight: spacing.small }}
+              />
+              <Text>Refresh</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={doRefresh}>
+              <MaterialCommunityIcons
+                name={"lan-connect"}
+                size={17}
+                color={color.palette.white}
+                style={{ marginRight: spacing.small }}
+              />
+              <Text>Check connectivity</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={{marginTop: spacing.large}}>
-          <Text style={{fontSize: 15}}>
-            Testing connection to the device...
-          </Text>
-        </View>
+          <View style={{ marginTop: spacing.large }}>
+            <Text style={{ fontSize: 15 }}>Testing connection to the device...</Text>
+          </View>
 
-        <View style={{marginTop: spacing.large}}>
-          <Text style={{fontSize: 18, color: color.palette.alternativeGreen}}>
-            Connection established. Everything is ok!
-          </Text>
-        </View>
+          <View style={{ marginTop: spacing.large }}>
+            <Text style={{ fontSize: 18, color: color.palette.alternativeGreen }}>
+              Connection established. Everything is ok!
+            </Text>
+          </View>
 
-        {/* <View style={{backgroundColor: color.palette.white, borderRadius: spacing.tiny}}>
+          {/* <View style={{backgroundColor: color.palette.white, borderRadius: spacing.tiny}}>
           <Text style={{fontSize: 15, color: color.palette.deepRed}}>
             Error! Connection couldn't be established.
           </Text>
         </View> */}
-
-      </View>
-
-      
-
-
+        </View>
       </LinearGradient>
     </Screen>
   )
