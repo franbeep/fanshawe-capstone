@@ -123,7 +123,7 @@ export const HomeScreen = observer(function HomeScreen() {
   // Pull in one of our MST stores
   const { bpmStore, settingsStore } = useStores()
   const { lastMinute } = bpmStore
-  const { actualTheme } = settingsStore
+  const { actualTheme, allowShifting } = settingsStore
 
   useEffect(() => {
     if (lastMinute > 0 && lastMinute < 50) {
@@ -302,9 +302,7 @@ export const HomeScreen = observer(function HomeScreen() {
     </>
   )
 
-  console.log(`@@@actualTheme: ${actualTheme}`)
-
-  if (actualTheme === "default")
+  if (actualTheme === "default" && allowShifting)
     return (
       <Screen style={ROOT} preset="scroll">
         <AnimatedViewWrapper>
