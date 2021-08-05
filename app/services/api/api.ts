@@ -9,6 +9,7 @@ const convertToBpm = (raw: any): BpmSnapshot => {
   if (raw.data && typeof raw.data === "number")
     return {
       lastMinute: raw.data,
+      lastHour: [],
       last24h: [],
       lastWeek: [],
       lastMonth: [],
@@ -16,6 +17,7 @@ const convertToBpm = (raw: any): BpmSnapshot => {
 
   return {
     lastMinute: 0,
+    lastHour: raw.map((val: { x: string; y: number }) => ({ x: val.x, y: val.y })),
     last24h: raw.map((val: { x: string; y: number }) => ({ x: val.x, y: val.y })),
     lastWeek: raw.map((val: { x: string; y: number }) => ({ x: val.x, y: val.y })),
     lastMonth: raw.map((val: { x: string; y: number }) => ({ x: val.x, y: val.y })),
@@ -84,6 +86,34 @@ export class Api {
     }
   }
 
+  async getHourBpm(): Promise<Types.GetHourBpmResult> {
+    // make the api call
+    const response: ApiResponse<any> = await this.apisauce.get("/bpm/hour")
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const data = response.data
+      // const convertedQuestions: QuestionSnapshot[] = rawQuestions.map(convertQuestion)
+      const snapshot: BpmSnapshot = {
+        lastMinute: 0,
+        lastHour: data,
+        last24h: [],
+        lastWeek: [],
+        lastMonth: [],
+      }
+      return { kind: "ok", list: cast(snapshot) }
+    } catch (e) {
+      __DEV__ && console.tron.log(e.message)
+      return { kind: "bad-data" }
+    }
+  }
+
   async getDayBpm(): Promise<Types.GetDayBpmResult> {
     // make the api call
     const response: ApiResponse<any> = await this.apisauce.get("/bpm/day")
@@ -100,6 +130,7 @@ export class Api {
       // const convertedQuestions: QuestionSnapshot[] = rawQuestions.map(convertQuestion)
       const snapshot: BpmSnapshot = {
         lastMinute: 0,
+        lastHour: [],
         last24h: data,
         lastWeek: [],
         lastMonth: [],
@@ -127,6 +158,7 @@ export class Api {
       // const convertedQuestions: QuestionSnapshot[] = rawQuestions.map(convertQuestion)
       const snapshot: BpmSnapshot = {
         lastMinute: 0,
+        lastHour: [],
         last24h: [],
         lastWeek: data,
         lastMonth: [],
@@ -154,6 +186,7 @@ export class Api {
       // const convertedQuestions: QuestionSnapshot[] = rawQuestions.map(convertQuestion)
       const snapshot: BpmSnapshot = {
         lastMinute: 0,
+        lastHour: [],
         last24h: [],
         lastWeek: [],
         lastMonth: data,

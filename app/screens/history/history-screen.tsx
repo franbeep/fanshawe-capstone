@@ -12,7 +12,14 @@ import {
 import { Screen, Text } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
-import { VictoryChart, VictoryTheme, VictoryLine, VictoryAxis } from "victory-native"
+import {
+  VictoryChart,
+  VictoryTheme,
+  VictoryLine,
+  VictoryAxis,
+  VictoryScatter,
+  VictoryGroup,
+} from "victory-native"
 
 const styles = StyleSheet.create({
   button: {
@@ -83,17 +90,26 @@ const getGradient = (c: string): string[] => {
   }
 }
 
+const calculateAverage = (items) =>
+  parseInt(items.reduce((acc, curr) => acc + curr.y / items.length, 0))
+
+const calculatePeak = (items) => items.reduce((acc, curr) => (curr.y > acc ? curr.y : acc), 0)
+
 export const HistoryScreen = observer(function HistoryScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [chartData, setChartData] = useState([])
 
   const { bpmStore, settingsStore } = useStores()
-  const { last24h, lastWeek, lastMonth } = bpmStore
+  const { lastHour, last24h, lastWeek, lastMonth } = bpmStore
   const { actualTheme } = settingsStore
 
   const changeChart = async (option) => {
     setRefreshing(true)
     switch (option) {
+      case "hour":
+        await bpmStore.getHourBpm()
+        setChartData(lastHour)
+        break
       case "day":
         await bpmStore.getDayBpm()
         setChartData(last24h)
@@ -113,7 +129,7 @@ export const HistoryScreen = observer(function HistoryScreen() {
   }
 
   useEffect(() => {
-    changeChart("day")
+    changeChart("hour")
   }, [])
 
   useEffect(() => {
@@ -137,6 +153,12 @@ export const HistoryScreen = observer(function HistoryScreen() {
       <View style={styles.buttonGroup}>
         <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
+          onPress={() => changeChart("hour")}
+        >
+          <Text style={{ color: setColor[0] }}>Hour</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ ...styles.button, borderColor: setColor[0] }}
           onPress={() => changeChart("day")}
         >
           <Text style={{ color: setColor[0] }}>Day</Text>
@@ -147,30 +169,32 @@ export const HistoryScreen = observer(function HistoryScreen() {
         >
           <Text style={{ color: setColor[0] }}>Week</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
           onPress={() => changeChart("month")}
         >
           <Text style={{ color: setColor[0] }}>Month</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {refreshing && <ActivityIndicator size="large" color={setColor[0]} style={LOADING} />}
 
       <View style={styles.container}>
-        <VictoryChart theme={VictoryTheme.material}>
+        <VictoryChart theme={VictoryTheme.material} maxDomain={{ y: 120 }} minDomain={{ y: 50 }}>
           <VictoryAxis dependentAxis />
           <VictoryAxis fixLabelOverlap={true} />
-          <VictoryLine
-            style={{
-              data: { stroke: setColor[0] },
-              parent: { border: "1px solid #ccc" },
-            }}
-            // maxDomain={{ x: 200 }}
-            // minDomain={{ x: 10 }}
-            interpolation="natural"
-            data={chartData.map((el, key) => ({ x: `${key}`, y: el.y }))}
-          />
+          {chartData.length > 1 ? (
+            <VictoryLine
+              style={{
+                data: { stroke: setColor[0] },
+                parent: { border: "1px solid #ccc" },
+              }}
+              interpolation="natural"
+              data={chartData}
+            />
+          ) : (
+            <VictoryScatter data={chartData} />
+          )}
         </VictoryChart>
       </View>
 
@@ -179,13 +203,13 @@ export const HistoryScreen = observer(function HistoryScreen() {
           <Text style={CONTAINER_TEXT} preset="bold">
             Avg.:{" "}
           </Text>
-          999
+          {calculateAverage(chartData)}
         </Text>
         <Text style={CONTAINER_TEXT}>
           <Text style={CONTAINER_TEXT} preset="bold">
             Peak:{" "}
           </Text>
-          999
+          {calculatePeak(chartData)}
         </Text>
       </View>
     </Screen>
