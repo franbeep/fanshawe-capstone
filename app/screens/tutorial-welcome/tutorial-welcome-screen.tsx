@@ -21,7 +21,7 @@ export const TutorialWelcomeScreen = observer(function TutorialWelcomeScreen() {
   const { settingsStore } = useStores()
 
   useEffect(() => {
-    settingsStore.reset()
+    // settingsStore.reset()
 
     const { allowNotification, angryColor, sadColor, happyColor, anxiousColor } = settingsStore
     console.log({ allowNotification, angryColor, sadColor, happyColor, anxiousColor })
