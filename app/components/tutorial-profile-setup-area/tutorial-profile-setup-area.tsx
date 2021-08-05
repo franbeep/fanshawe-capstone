@@ -133,7 +133,7 @@ const AspectColor = ({ colorValue, onRelease }) => {
   )
 }
 
-export function TutorialProfileSetupArea({ saveColorScheme }) {
+export function TutorialProfileSetupArea({ saveColorScheme, initialValue = null }) {
   const [moods, setMood] = useReducer(
     (state, action) => {
       const decodeStyleFromColor = (color) =>
@@ -207,6 +207,14 @@ export function TutorialProfileSetupArea({ saveColorScheme }) {
     happy: useRef(null),
     anxious: useRef(null),
   }
+
+  useEffect(() => {
+    if (initialValue != null) {
+      initialValue.forEach((item) => {
+        if (item.color !== "") setMood({ mood: item.mood, color: item.color })
+      })
+    }
+  }, [])
 
   useEffect(() => {
     if (refs.angry != null) {
