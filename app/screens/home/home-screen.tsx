@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useEffect, useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
 import {
@@ -53,7 +55,6 @@ const OUTER_BPM_CIRCLE: ViewStyle = {
 const BPM_VALUE: TextStyle = {
   fontSize: 60,
   color: color.palette.white,
-  // backgroundColor: "green",
   width: 110,
   textAlign: "center",
 }
@@ -62,7 +63,6 @@ const BPM_CAPTION: TextStyle = {
   color: color.palette.white,
   fontSize: 20,
   alignSelf: "center",
-  // backgroundColor: "purple"
 }
 
 const CENTER: ViewStyle = {
@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   linearGradient: {
-    // borderRadius: 5,
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,
@@ -139,6 +138,19 @@ export const HomeScreen = observer(function HomeScreen() {
         { text: "Cancel", style: "cancel", onPress: () => {} },
       ])
     }
+
+    if (lastMinute > 100) {
+      Alert.alert("Are you ok?", "You seem stressed out. Let us help you destressify you.", [
+        {
+          text: "Ok!",
+          style: "destructive",
+          onPress: () => {
+            settingsStore.setThemeColor(settingsStore.sadColor)
+          },
+        },
+        { text: "Cancel", style: "cancel", onPress: () => {} },
+      ])
+    }
   }, [lastMinute])
 
   const fetchData = async () => {
@@ -148,9 +160,9 @@ export const HomeScreen = observer(function HomeScreen() {
     setRefreshing(false)
   }
 
-  // useEffect(() => {
-  //   fetchData()
-  // }, [])
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const navigation = useNavigation()
   useEffect(() => {
@@ -179,45 +191,8 @@ export const HomeScreen = observer(function HomeScreen() {
   }
 
   const startAnimatedBackground = useRef(new Animated.Value(0)).current
-  const endAnimatedBackground = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
-    // start
-    // Animated.loop(
-    //   Animated.sequence([
-    //     Animated.timing(startAnimatedBackground, {
-    //       toValue: 10,
-    //       duration: 2000,
-    //       useNativeDriver: true,
-    //     }),
-    //     Animated.timing(startAnimatedBackground, {
-    //       toValue: 0,
-    //       duration: 2000,
-    //       useNativeDriver: true,
-    //     }),
-    //   ]),
-    //   {
-    //     iterations: 10,
-    //   },
-    // ).start()
-    // end
-    // Animated.loop(
-    //   Animated.sequence([
-    //     Animated.timing(endAnimatedBackground, {
-    //       toValue: 10,
-    //       duration: 2000,
-    //       useNativeDriver: true,
-    //     }),
-    //     Animated.timing(endAnimatedBackground, {
-    //       toValue: 0,
-    //       duration: 2000,
-    //       useNativeDriver: true,
-    //     }),
-    //   ]),
-    //   {
-    //     iterations: 10,
-    //   },
-    // ).start()
     Animated.loop(
       Animated.sequence([
         Animated.timing(startAnimatedBackground, {
@@ -251,23 +226,6 @@ export const HomeScreen = observer(function HomeScreen() {
     ],
   })
 
-  // const endAnimatedBackgroundInterpolated = endAnimatedBackground.interpolate({
-  //   inputRange: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  //   outputRange: [
-  //     "rgb(106, 93, 248)",
-  //     "rgb(201, 87, 230)",
-  //     "rgb(210, 72, 107)",
-  //     "rgb(191, 68, 172)",
-  //     "rgb(171, 71, 208)",
-  //     "rgb(148, 96, 243)",
-  //     "rgb(70, 172, 237)",
-  //     "rgb(78, 196, 163)",
-  //     "rgb(184, 186, 5)",
-  //     "rgb(210, 72, 107)",
-  //     "rgb(26, 117, 255)",
-  //   ],
-  // })
-
   const GradientWrapper = ({ children }) => (
     <LinearGradient colors={getGradient(actualTheme)} style={styles.linearGradient}>
       {children}
@@ -291,7 +249,7 @@ export const HomeScreen = observer(function HomeScreen() {
     <>
       <View style={NAME_CONTAINER}>
         <Text preset="bold">☁️ Clouds 23°C</Text>
-        <Text preset="default">16 July, 2021</Text>
+        <Text preset="default">3 August, 2021</Text>
       </View>
 
       <View style={CENTER}>

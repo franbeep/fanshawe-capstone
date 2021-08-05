@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
 import {
   ViewStyle,
@@ -12,17 +12,14 @@ import {
 import { Screen, Text } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
-import { VictoryChart, VictoryTheme, VictoryLine } from "victory-native"
+import { VictoryChart, VictoryTheme, VictoryLine, VictoryAxis } from "victory-native"
 
 const styles = StyleSheet.create({
   button: {
-    // borderColor: color.palette.brightOrange,
     borderRadius: 4,
     borderWidth: 1,
-    // color: color.palette.brightOrange,
     flexDirection: "row",
     fontSize: 17,
-    // marginTop: spacing.large,
     marginHorizontal: spacing.small,
     paddingHorizontal: spacing.large,
     paddingVertical: spacing.small,
@@ -115,6 +112,15 @@ export const HistoryScreen = observer(function HistoryScreen() {
     setRefreshing(false)
   }
 
+  useEffect(() => {
+    changeChart("day")
+  }, [])
+
+  useEffect(() => {
+    console.log("chart data:")
+    console.log(JSON.stringify(chartData))
+  }, [chartData])
+
   const setColor = getGradient(actualTheme)
 
   return (
@@ -124,7 +130,7 @@ export const HistoryScreen = observer(function HistoryScreen() {
           ☁️ Clouds 23°C
         </Text>
         <Text style={CONTAINER_TEXT} preset="default">
-          15 July, 2021
+          3 August, 2021
         </Text>
       </View>
 
@@ -137,13 +143,13 @@ export const HistoryScreen = observer(function HistoryScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
-          onPress={() => changeChart("Week")}
+          onPress={() => changeChart("week")}
         >
           <Text style={{ color: setColor[0] }}>Week</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
-          onPress={() => changeChart("Week")}
+          onPress={() => changeChart("month")}
         >
           <Text style={{ color: setColor[0] }}>Month</Text>
         </TouchableOpacity>
@@ -153,12 +159,17 @@ export const HistoryScreen = observer(function HistoryScreen() {
 
       <View style={styles.container}>
         <VictoryChart theme={VictoryTheme.material}>
+          <VictoryAxis dependentAxis />
+          <VictoryAxis fixLabelOverlap={true} />
           <VictoryLine
             style={{
               data: { stroke: setColor[0] },
               parent: { border: "1px solid #ccc" },
             }}
-            data={chartData}
+            // maxDomain={{ x: 200 }}
+            // minDomain={{ x: 10 }}
+            interpolation="natural"
+            data={chartData.map((el, key) => ({ x: `${key}`, y: el.y }))}
           />
         </VictoryChart>
       </View>
