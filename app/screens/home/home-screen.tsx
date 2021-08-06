@@ -114,6 +114,9 @@ const getGradient = (c: string): string[] => {
   }
 }
 
+const BPM_BELOW_RANGE = 50
+const BPM_ABOVE_RANGE = 100
+
 export const HomeScreen = observer(function HomeScreen() {
   // Are we refreshing the data
   const [refreshing, setRefreshing] = useState(false)
@@ -126,7 +129,7 @@ export const HomeScreen = observer(function HomeScreen() {
   const { actualTheme, allowShifting } = settingsStore
 
   useEffect(() => {
-    if (lastMinute > 0 && lastMinute < 50) {
+    if (lastMinute > 0 && lastMinute < BPM_BELOW_RANGE) {
       Alert.alert("Change Theme", "You seem down 😔. Don't worry, we can solve this! 🥳", [
         {
           text: "Change Theme to HAPPY",
@@ -139,8 +142,8 @@ export const HomeScreen = observer(function HomeScreen() {
       ])
     }
 
-    if (lastMinute > 100) {
-      Alert.alert("Are you ok?", "You seem stressed out. Let us help you destressify you.", [
+    if (lastMinute > BPM_ABOVE_RANGE) {
+      Alert.alert("Are you ok?", "You seem stressed out. Let us help destressify you.", [
         {
           text: "Ok!",
           style: "destructive",
@@ -156,6 +159,8 @@ export const HomeScreen = observer(function HomeScreen() {
   const fetchData = async () => {
     setRefreshing(true)
     await bpmStore.getCurrentBpm()
+    if (actualTheme !== "default" && lastMinute > BPM_BELOW_RANGE && lastMinute < BPM_ABOVE_RANGE)
+      settingsStore.setThemeColor("default")
     setLastChecked(new Date())
     setRefreshing(false)
   }
@@ -183,11 +188,12 @@ export const HomeScreen = observer(function HomeScreen() {
     // dummy checking
     setMessage("Testing connection to the device...")
     setTimeout(() => {
-      setMessage("Error! Connection couldn't be established.")
+      setMessage("Everything seems ok!")
+      // setMessage("Error! Connection couldn't be established.")
       setTimeout(() => {
         setMessage("")
       }, 3000)
-    }, 3000)
+    }, 1500)
   }
 
   const startAnimatedBackground = useRef(new Animated.Value(0)).current

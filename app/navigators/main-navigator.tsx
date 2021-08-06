@@ -35,8 +35,8 @@ import { useStores } from "../models"
  *   https://reactnavigation.org/docs/typescript#type-checking-the-navigator
  */
 export type PrimaryParamList = {
-  tutorialwelcome: undefined
-  home: undefined
+  tutorialwelcomeStart: undefined
+  homeStart: undefined
 }
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
@@ -157,8 +157,8 @@ export function MainNavigator() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="tutorialwelcome" component={TutorialStackNavigator} />
-      <Stack.Screen name="home" component={AppTabsNavigator} />
+      <Stack.Screen name="tutorialwelcomeStart" component={TutorialStackNavigator} />
+      <Stack.Screen name="homeStart" component={AppTabsNavigator} />
     </Stack.Navigator>
   )
 }
@@ -172,5 +172,5 @@ export function MainNavigator() {
  *
  * `canExit` is used in ./app/app.tsx in the `useBackButtonHandler` hook.
  */
-const exitRoutes = ["home"]
+const exitRoutes = []
 export const canExit = (routeName: string) => exitRoutes.includes(routeName)
