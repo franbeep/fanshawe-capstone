@@ -19,6 +19,7 @@ import { color, spacing } from "../../theme"
 import LinearGradient from "react-native-linear-gradient"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import axios from "axios"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -122,11 +123,14 @@ export const HomeScreen = observer(function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [message, setMessage] = useState("")
   const [lastChecked, setLastChecked] = useState(null)
+  const [weather, setWeather] = useState("")
 
   // Pull in one of our MST stores
   const { bpmStore, settingsStore } = useStores()
   const { lastMinute } = bpmStore
   const { actualTheme, allowShifting } = settingsStore
+
+  const today = new Date()
 
   useEffect(() => {
     if (lastMinute > 0 && lastMinute < BPM_BELOW_RANGE) {
@@ -165,8 +169,14 @@ export const HomeScreen = observer(function HomeScreen() {
     setRefreshing(false)
   }
 
+  const fetchWeather = async () => {
+    const response = await axios.get("http://automatic-mango-hexagon.glitch.me/weather")
+    setWeather(response.data.data)
+  }
+
   useEffect(() => {
     fetchData()
+    fetchWeather()
   }, [])
 
   const navigation = useNavigation()
@@ -254,8 +264,8 @@ export const HomeScreen = observer(function HomeScreen() {
   const Rest = () => (
     <>
       <View style={NAME_CONTAINER}>
-        <Text preset="bold">☁️ Clouds 23°C</Text>
-        <Text preset="default">3 August, 2021</Text>
+        <Text preset="bold">{weather}</Text>
+        <Text preset="default">{today.toDateString()}</Text>
       </View>
 
       <View style={CENTER}>
