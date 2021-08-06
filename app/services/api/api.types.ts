@@ -14,6 +14,7 @@ export type GetCharactersResult = { kind: "ok"; characters: Character[] } | Gene
 export type GetCharacterResult = { kind: "ok"; character: Character } | GeneralApiProblem
 
 export type GetCurrentBpmResult = { kind: "ok"; bpm: Bpm } | GeneralApiProblem
+export type GetHourBpmResult = { kind: "ok"; list: Bpm } | GeneralApiProblem
 export type GetDayBpmResult = { kind: "ok"; list: Bpm } | GeneralApiProblem
 export type GetWeekBpmResult = { kind: "ok"; list: Bpm } | GeneralApiProblem
 export type GetMonthBpmResult = { kind: "ok"; list: Bpm } | GeneralApiProblem

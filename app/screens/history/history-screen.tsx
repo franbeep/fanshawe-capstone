@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
 import {
   ViewStyle,
@@ -12,17 +12,21 @@ import {
 import { Screen, Text } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
-import { VictoryChart, VictoryTheme, VictoryLine } from "victory-native"
+import {
+  VictoryChart,
+  VictoryTheme,
+  VictoryLine,
+  VictoryAxis,
+  VictoryScatter,
+  VictoryGroup,
+} from "victory-native"
 
 const styles = StyleSheet.create({
   button: {
-    // borderColor: color.palette.brightOrange,
     borderRadius: 4,
     borderWidth: 1,
-    // color: color.palette.brightOrange,
     flexDirection: "row",
     fontSize: 17,
-    // marginTop: spacing.large,
     marginHorizontal: spacing.small,
     paddingHorizontal: spacing.large,
     paddingVertical: spacing.small,
@@ -86,17 +90,26 @@ const getGradient = (c: string): string[] => {
   }
 }
 
+const calculateAverage = (items) =>
+  parseInt(items.reduce((acc, curr) => acc + curr.y / items.length, 0))
+
+const calculatePeak = (items) => items.reduce((acc, curr) => (curr.y > acc ? curr.y : acc), 0)
+
 export const HistoryScreen = observer(function HistoryScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [chartData, setChartData] = useState([])
 
   const { bpmStore, settingsStore } = useStores()
-  const { last24h, lastWeek, lastMonth } = bpmStore
+  const { lastHour, last24h, lastWeek, lastMonth } = bpmStore
   const { actualTheme } = settingsStore
 
   const changeChart = async (option) => {
     setRefreshing(true)
     switch (option) {
+      case "hour":
+        await bpmStore.getHourBpm()
+        setChartData(lastHour)
+        break
       case "day":
         await bpmStore.getDayBpm()
         setChartData(last24h)
@@ -115,6 +128,15 @@ export const HistoryScreen = observer(function HistoryScreen() {
     setRefreshing(false)
   }
 
+  useEffect(() => {
+    changeChart("hour")
+  }, [])
+
+  useEffect(() => {
+    console.log("chart data:")
+    console.log(JSON.stringify(chartData))
+  }, [chartData])
+
   const setColor = getGradient(actualTheme)
 
   return (
@@ -124,11 +146,17 @@ export const HistoryScreen = observer(function HistoryScreen() {
           ☁️ Clouds 23°C
         </Text>
         <Text style={CONTAINER_TEXT} preset="default">
-          15 July, 2021
+          3 August, 2021
         </Text>
       </View>
 
       <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={{ ...styles.button, borderColor: setColor[0] }}
+          onPress={() => changeChart("hour")}
+        >
+          <Text style={{ color: setColor[0] }}>Hour</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
           onPress={() => changeChart("day")}
@@ -137,29 +165,36 @@ export const HistoryScreen = observer(function HistoryScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
-          onPress={() => changeChart("Week")}
+          onPress={() => changeChart("week")}
         >
           <Text style={{ color: setColor[0] }}>Week</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{ ...styles.button, borderColor: setColor[0] }}
-          onPress={() => changeChart("Week")}
+          onPress={() => changeChart("month")}
         >
           <Text style={{ color: setColor[0] }}>Month</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {refreshing && <ActivityIndicator size="large" color={setColor[0]} style={LOADING} />}
 
       <View style={styles.container}>
-        <VictoryChart theme={VictoryTheme.material}>
-          <VictoryLine
-            style={{
-              data: { stroke: setColor[0] },
-              parent: { border: "1px solid #ccc" },
-            }}
-            data={chartData}
-          />
+        <VictoryChart theme={VictoryTheme.material} maxDomain={{ y: 120 }} minDomain={{ y: 50 }}>
+          <VictoryAxis dependentAxis />
+          <VictoryAxis fixLabelOverlap={true} />
+          {chartData.length > 1 ? (
+            <VictoryLine
+              style={{
+                data: { stroke: setColor[0] },
+                parent: { border: "1px solid #ccc" },
+              }}
+              interpolation="natural"
+              data={chartData}
+            />
+          ) : (
+            <VictoryScatter data={chartData} />
+          )}
         </VictoryChart>
       </View>
 
@@ -168,13 +203,13 @@ export const HistoryScreen = observer(function HistoryScreen() {
           <Text style={CONTAINER_TEXT} preset="bold">
             Avg.:{" "}
           </Text>
-          999
+          {calculateAverage(chartData)}
         </Text>
         <Text style={CONTAINER_TEXT}>
           <Text style={CONTAINER_TEXT} preset="bold">
             Peak:{" "}
           </Text>
-          999
+          {calculatePeak(chartData)}
         </Text>
       </View>
     </Screen>

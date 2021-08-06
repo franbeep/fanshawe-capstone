@@ -1,6 +1,7 @@
 import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
 import {
   GetCurrentBpmResult,
+  GetHourBpmResult,
   GetDayBpmResult,
   GetMonthBpmResult,
   GetWeekBpmResult,
@@ -14,6 +15,12 @@ export const BpmModel = types
   .model("Bpm")
   .props({
     lastMinute: types.optional(types.number, 0),
+    lastHour: types.array(
+      types.model({
+        x: types.string,
+        y: types.number,
+      }),
+    ),
     last24h: types.array(
       types.model({
         x: types.string,
@@ -41,6 +48,9 @@ export const BpmModel = types
         case "lastMinute":
           self.lastMinute = bpmSnapshot.lastMinute
           break
+        case "lastHour":
+          self.lastHour.replace(bpmSnapshot.lastHour)
+          break
         case "last24h":
           self.last24h.replace(bpmSnapshot.last24h)
           break
@@ -60,6 +70,14 @@ export const BpmModel = types
       const result: GetCurrentBpmResult = yield self.environment.api.getCurrentBpm()
       if (result.kind === "ok") {
         self.saveBpmState("lastMinute", result.bpm)
+      } else {
+        __DEV__ && console.tron.log(result.kind)
+      }
+    }),
+    getHourBpm: flow(function* () {
+      const result: GetHourBpmResult = yield self.environment.api.getHourBpm()
+      if (result.kind === "ok") {
+        self.saveBpmState("lastHour", result.list)
       } else {
         __DEV__ && console.tron.log(result.kind)
       }

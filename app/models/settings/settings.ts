@@ -7,11 +7,12 @@ export const SettingsModel = types
   .model("Settings")
   .props({
     allowNotification: types.optional(types.boolean, false),
+    allowShifting: types.optional(types.boolean, true),
     angryColor: types.optional(types.maybe(types.string), ""),
     sadColor: types.optional(types.maybe(types.string), ""),
     happyColor: types.optional(types.maybe(types.string), ""),
     anxiousColor: types.optional(types.maybe(types.string), ""),
-    actualTheme: types.optional(types.maybe(types.string), "orange"),
+    actualTheme: types.optional(types.maybe(types.string), "default"),
   })
   .views((self) => ({
     get isComplete(): boolean {
@@ -28,6 +29,11 @@ export const SettingsModel = types
       console.log({ before: self.allowNotification, val })
       self.allowNotification = val
       console.log({ after: self.allowNotification, val })
+    },
+    setAllowShifting: (val: boolean) => {
+      console.log({ before: self.allowShifting, val })
+      self.allowShifting = val
+      console.log({ after: self.allowShifting, val })
     },
     setAngryColor: (val: string) => {
       console.log({ before: self.angryColor, val })
@@ -66,11 +72,12 @@ export const SettingsModel = types
     reset: () => {
       console.log("Resetting...")
       self.allowNotification = false
+      self.allowShifting = true
       self.angryColor = ""
       self.sadColor = ""
       self.happyColor = ""
       self.anxiousColor = ""
-      self.actualTheme = ""
+      self.actualTheme = "default"
     },
   }))
 
