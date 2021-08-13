@@ -37,7 +37,7 @@ export const TutorialWelcomeScreen = observer(function TutorialWelcomeScreen() {
           music and coloring scheme for your home.
         </Wrapper.Content>
         <Wrapper.Content>
-          Follow along the tutorial so we can setup everything for you!😉
+          Follow along the tutorial so we can setup application and everything for you! 😉
         </Wrapper.Content>
         <NavigationDots quantity={5} current={0} />
       </Wrapper.Container>

@@ -134,22 +134,26 @@ export const HomeScreen = observer(function HomeScreen() {
 
   useEffect(() => {
     if (lastMinute > 0 && lastMinute < BPM_BELOW_RANGE) {
-      Alert.alert("Change Theme", "You seem down 😔. Don't worry, we can solve this! 🥳", [
-        {
-          text: "Change Theme to HAPPY",
-          style: "destructive",
-          onPress: () => {
-            settingsStore.setThemeColor(settingsStore.happyColor)
+      Alert.alert(
+        "Would you want a theme change?",
+        "You seem down 😔. Don't worry, we can solve this! 🥳",
+        [
+          {
+            text: "Yes, please!",
+            style: "destructive",
+            onPress: () => {
+              settingsStore.setThemeColor(settingsStore.happyColor)
+            },
           },
-        },
-        { text: "Cancel", style: "cancel", onPress: () => {} },
-      ])
+          { text: "Cancel", style: "cancel", onPress: () => {} },
+        ],
+      )
     }
 
     if (lastMinute > BPM_ABOVE_RANGE) {
       Alert.alert("Are you ok?", "You seem stressed out. Let us help destressify you.", [
         {
-          text: "Ok!",
+          text: "Change theme",
           style: "destructive",
           onPress: () => {
             settingsStore.setThemeColor(settingsStore.sadColor)
@@ -157,6 +161,23 @@ export const HomeScreen = observer(function HomeScreen() {
         },
         { text: "Cancel", style: "cancel", onPress: () => {} },
       ])
+    }
+
+    if (lastMinute < BPM_ABOVE_RANGE && lastMinute > BPM_BELOW_RANGE && actualTheme !== "default") {
+      Alert.alert(
+        "All clear!",
+        "You seem much better than before. Would you like to return to the normal theme now? If you want, you can stay in the present theme 😉!",
+        [
+          {
+            text: "Default Theme",
+            style: "destructive",
+            onPress: () => {
+              settingsStore.setThemeColor("default")
+            },
+          },
+          { text: "Current Theme", style: "cancel", onPress: () => {} },
+        ],
+      )
     }
   }, [lastMinute])
 
