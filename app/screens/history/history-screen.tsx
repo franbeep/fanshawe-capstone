@@ -20,6 +20,7 @@ import {
   VictoryScatter,
   VictoryGroup,
 } from "victory-native"
+import axios from "axios"
 
 const styles = StyleSheet.create({
   button: {
@@ -98,10 +99,20 @@ const calculatePeak = (items) => items.reduce((acc, curr) => (curr.y > acc ? cur
 export const HistoryScreen = observer(function HistoryScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [chartData, setChartData] = useState([])
+  const [weather, setWeather] = useState("")
 
   const { bpmStore, settingsStore } = useStores()
   const { lastHour, last24h, lastWeek, lastMonth } = bpmStore
   const { actualTheme } = settingsStore
+  const today = new Date()
+
+  const fetchWeather = async () => {
+    const response = await axios.get("http://automatic-mango-hexagon.glitch.me/weather")
+    setWeather(response.data.data)
+  }
+  useEffect(() => {
+    fetchWeather()
+  }, [])
 
   const changeChart = async (option) => {
     setRefreshing(true)
@@ -143,10 +154,10 @@ export const HistoryScreen = observer(function HistoryScreen() {
     <Screen style={ROOT} preset="scroll">
       <View style={NAME_CONTAINER}>
         <Text style={CONTAINER_TEXT} preset="bold">
-          ☁️ Clouds 23°C
+          {weather}
         </Text>
         <Text style={CONTAINER_TEXT} preset="default">
-          3 August, 2021
+          {today.toDateString()}
         </Text>
       </View>
 

@@ -19,6 +19,7 @@ import { color, spacing } from "../../theme"
 import LinearGradient from "react-native-linear-gradient"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import axios from "axios"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -122,30 +123,37 @@ export const HomeScreen = observer(function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [message, setMessage] = useState("")
   const [lastChecked, setLastChecked] = useState(null)
+  const [weather, setWeather] = useState("")
 
   // Pull in one of our MST stores
   const { bpmStore, settingsStore } = useStores()
   const { lastMinute } = bpmStore
   const { actualTheme, allowShifting } = settingsStore
 
+  const today = new Date()
+
   useEffect(() => {
     if (lastMinute > 0 && lastMinute < BPM_BELOW_RANGE) {
-      Alert.alert("Change Theme", "You seem down 😔. Don't worry, we can solve this! 🥳", [
-        {
-          text: "Change Theme to HAPPY",
-          style: "destructive",
-          onPress: () => {
-            settingsStore.setThemeColor(settingsStore.happyColor)
+      Alert.alert(
+        "Would you want a theme change?",
+        "You seem down 😔. Don't worry, we can solve this! 🥳",
+        [
+          {
+            text: "Yes, please!",
+            style: "destructive",
+            onPress: () => {
+              settingsStore.setThemeColor(settingsStore.happyColor)
+            },
           },
-        },
-        { text: "Cancel", style: "cancel", onPress: () => {} },
-      ])
+          { text: "Cancel", style: "cancel", onPress: () => {} },
+        ],
+      )
     }
 
     if (lastMinute > BPM_ABOVE_RANGE) {
       Alert.alert("Are you ok?", "You seem stressed out. Let us help destressify you.", [
         {
-          text: "Ok!",
+          text: "Change theme",
           style: "destructive",
           onPress: () => {
             settingsStore.setThemeColor(settingsStore.sadColor)
@@ -153,6 +161,23 @@ export const HomeScreen = observer(function HomeScreen() {
         },
         { text: "Cancel", style: "cancel", onPress: () => {} },
       ])
+    }
+
+    if (lastMinute < BPM_ABOVE_RANGE && lastMinute > BPM_BELOW_RANGE && actualTheme !== "default") {
+      Alert.alert(
+        "All clear!",
+        "You seem much better than before. Would you like to return to the normal theme now? If you want, you can stay in the present theme 😉!",
+        [
+          {
+            text: "Default Theme",
+            style: "destructive",
+            onPress: () => {
+              settingsStore.setThemeColor("default")
+            },
+          },
+          { text: "Current Theme", style: "cancel", onPress: () => {} },
+        ],
+      )
     }
   }, [lastMinute])
 
@@ -165,8 +190,14 @@ export const HomeScreen = observer(function HomeScreen() {
     setRefreshing(false)
   }
 
+  const fetchWeather = async () => {
+    const response = await axios.get("http://automatic-mango-hexagon.glitch.me/weather")
+    setWeather(response.data.data)
+  }
+
   useEffect(() => {
     fetchData()
+    fetchWeather()
   }, [])
 
   const navigation = useNavigation()
@@ -254,8 +285,8 @@ export const HomeScreen = observer(function HomeScreen() {
   const Rest = () => (
     <>
       <View style={NAME_CONTAINER}>
-        <Text preset="bold">☁️ Clouds 23°C</Text>
-        <Text preset="default">3 August, 2021</Text>
+        <Text preset="bold">{weather}</Text>
+        <Text preset="default">{today.toDateString()}</Text>
       </View>
 
       <View style={CENTER}>
